@@ -1,80 +1,102 @@
-import { ColorModeContext } from "@contexts/color-mode";
-import DarkModeOutlined from "@mui/icons-material/DarkModeOutlined";
-import LightModeOutlined from "@mui/icons-material/LightModeOutlined";
-import AppBar from "@mui/material/AppBar";
-import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
-import Stack from "@mui/material/Stack";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import { useGetIdentity } from "@refinedev/core";
-import { HamburgerMenu, RefineThemedLayoutV2HeaderProps } from "@refinedev/mui";
-import React, { useContext } from "react";
+"use client";
+import React from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  InputBase,
+  IconButton,
+  useTheme,
+  TextField,
+  Button,
+  Box,
+  Avatar,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import { useGoogleLogin } from "@react-oauth/google";
+import { AuthService } from "@/services";
+import Link from "next/link";
+import { Icon } from "@iconify/react";
+import Cookies from "js-cookie";
+import { LocalStorageUserKey } from "@utils/common";
 
-type IUser = {
-  id: number;
-  name: string;
-  avatar: string;
-};
-
-export const Header: React.FC<RefineThemedLayoutV2HeaderProps> = ({
-  sticky = true,
-}) => {
-  const { mode, setMode } = useContext(ColorModeContext);
-
-  const { data: user } = useGetIdentity<IUser>();
-
+const Header: React.FC = () => {
+  const theme = useTheme();
+  const login = useGoogleLogin({
+    onSuccess: async (codeResponse: any) => {
+      // Handle successful login
+      const response = await AuthService.loginWithGoogle(codeResponse);
+      localStorage?.setItem(LocalStorageUserKey, JSON.stringify(response.data));
+    },
+    onError: (error) => {
+      // Handle login error
+      console.error(error);
+    },
+  });
   return (
-    <AppBar position={sticky ? "sticky" : "relative"}>
-      <Toolbar>
-        <Stack
-          direction="row"
-          width="100%"
-          justifyContent="flex-end"
-          alignItems="center"
-        >
-          <HamburgerMenu />
-          <Stack
-            direction="row"
-            width="100%"
-            justifyContent="flex-end"
-            alignItems="center"
-          >
-            <IconButton
-              color="inherit"
-              onClick={() => {
-                setMode();
+    <AppBar
+      position="sticky"
+      sx={{
+        color: theme.palette.common.white,
+        background: theme.palette.primary.contrastText,
+      }}
+    >
+      <Toolbar sx={{ gap: 2, flexWrap: "wrap" }}>
+        <Box sx={{ flexGrow: 1 }}>
+          <Typography variant="h5">
+            <Link
+              href={"/"}
+              style={{
+                textDecoration: "none",
+                color: theme.palette.common.white,
               }}
             >
-              {mode === "dark" ? <LightModeOutlined /> : <DarkModeOutlined />}
-            </IconButton>
-
-            {(user?.avatar || user?.name) && (
-              <Stack
-                direction="row"
-                gap="16px"
-                alignItems="center"
-                justifyContent="center"
-              >
-                {user?.name && (
-                  <Typography
-                    sx={{
-                      display: {
-                        xs: "none",
-                        sm: "inline-block",
-                      },
-                    }}
-                    variant="subtitle2"
-                  >
-                    {user?.name}
-                  </Typography>
-                )}
-                <Avatar src={user?.avatar} alt={user?.name} />
-              </Stack>
-            )}
-          </Stack>
-        </Stack>
+              Fandy Blog
+            </Link>
+          </Typography>
+        </Box>
+        <TextField
+          variant="standard"
+          placeholder="Search..."
+          sx={{
+            flexGrow: 1,
+            maxWidth: 500,
+            marginX: 2,
+            input: {
+              color: theme.palette.common.white,
+            },
+          }}
+        />
+        <IconButton color="inherit">
+          <SearchIcon />
+        </IconButton>
+        {localStorage?.getItem(LocalStorageUserKey) ? (
+          <Avatar
+            sx={{ cursor: "pointer" }}
+            src={
+              JSON.parse(localStorage.getItem(LocalStorageUserKey) || "{}")
+                ?.avatar || ""
+            }
+          />
+        ) : (
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => login()}
+            sx={{ color: theme.palette.primary.contrastText }}
+          >
+            Sign in with Google{" "}
+            <Icon
+              style={{ marginLeft: "10px" }}
+              width={20}
+              height={20}
+              icon="devicon:google"
+            />
+          </Button>
+        )}
       </Toolbar>
     </AppBar>
   );
 };
+
+export default Header;
