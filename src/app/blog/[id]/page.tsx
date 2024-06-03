@@ -2,7 +2,7 @@ import { BlogsService } from "@/services";
 import Content from "../../../components/blogDetail/content";
 import { NextResponse } from "next/server";
 
-export async function fetchBlogDetail(id: string) {
+async function fetchBlogDetail(id: string) {
   // Fetch data from your server action
   const res = await BlogsService.getBlogDetail(id);
 
