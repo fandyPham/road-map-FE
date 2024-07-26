@@ -4,12 +4,12 @@ import querystring from "qs";
 
 const getHomeBlogs = async (filter: Filter) => {
   const params = querystring.stringify(filter);
-  const response = await instance.get(`/blogs?${params}`);
+  const response = await instance.get(`/api/blogs?${params}`);
   return response;
 };
 
 const getBlogDetail = async (blogId: string) => {
-  const response = await instance.get(`/blogs/${blogId}/detail`);
+  const response = await instance.get(`/api/blogs/${blogId}/detail`);
   return response;
 };
 

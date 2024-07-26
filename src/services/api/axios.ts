@@ -102,9 +102,7 @@ export const createServiceNoToken = (baseURL?: string): AxiosInstance => {
   return instance;
 };
 
-export const instance = createServiceNoToken(
-  process.env.NEXT_PUBLIC_API_ENDPOINT
-);
+export const instance = createServiceNoToken();
 export const instance_token = createService(process.env.NEXT);
 
 export const formDataInstance = createService(

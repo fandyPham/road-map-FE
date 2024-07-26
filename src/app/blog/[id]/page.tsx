@@ -1,6 +1,5 @@
 import { BlogsService } from "@/services";
 import Content from "../../../components/blogDetail/content";
-import { NextResponse } from "next/server";
 
 async function fetchBlogDetail(id: string) {
   // Fetch data from your server action
